@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>商品展示（占位版）</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#121a28;
+      --card2:#0f1624;
+      --text:#eaf0ff;
+      --muted:#9fb0d0;
+      --line:rgba(255,255,255,.10);
+      --brand:#6aa6ff;
+      --brand2:#7cf0c9;
+      --danger:#ff6a6a;
+
+      --radius:16px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", Arial;
+      background: radial-gradient(1200px 700px at 20% -20%, rgba(106,166,255,.25), transparent 55%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(124,240,201,.18), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+    a{color:inherit}
+    button{font:inherit}
+    .app{
+      min-height:100%;
+      padding-top: calc(12px + var(--safe-top));
+      padding-bottom: calc(80px + var(--safe-bottom));
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* 顶部栏 */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 10px 14px 12px;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,15,23,.85), rgba(11,15,23,.35));
+      border-bottom: 1px solid var(--line);
+    }
+    .row{display:flex; align-items:center; gap:10px}
+    .title{
+      font-weight: 800;
+      letter-spacing: .5px;
+      font-size: 16px;
+      line-height: 1.1;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .search{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .search input{
+      flex:1;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      outline: none;
+    }
+    .search input::placeholder{color: rgba(159,176,208,.75)}
+    .pill{
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill:active{transform: scale(.98)}
+    .badge{
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(106,166,255,.95), rgba(124,240,201,.85));
+      color:#05101c;
+      font-weight: 800;
+      font-size: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* 分类 */
+    .chips{
+      padding: 12px 14px 2px;
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width:none;
+    }
+    .chips::-webkit-scrollbar{display:none}
+    .chip{
+      white-space:nowrap;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip.active{
+      background: rgba(106,166,255,.18);
+      color: var(--text);
+      border-color: rgba(106,166,255,.45);
+    }
+
+    /* 商品网格 */
+    .grid{
+      padding: 10px 14px 14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 480px){
+      .grid{grid-template-columns: 1fr 1fr 1fr;}
+    }
+    .card{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--line);
+      overflow:hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      cursor:pointer;
+      user-select:none;
+    }
+    .card:active{transform: scale(.99)}
+    .media{
+      aspect-ratio: 1 / 1;
+      background: radial-gradient(120px 120px at 30% 30%, rgba(106,166,255,.35), transparent 60%),
+                  radial-gradient(140px 140px at 70% 60%, rgba(124,240,201,.25), transparent 60%),
+                  rgba(255,255,255,.03);
+      position: relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* 简单图形占位：圆/方/三角 */
+    .shape{
+      width: 58%;
+      height: 58%;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.16);
+      position: relative;
+    }
+    .shape.circle{border-radius: 999px}
+    .shape.triangle{
+      width: 0; height: 0;
+      border-left: 58px solid transparent;
+      border-right: 58px solid transparent;
+      border-bottom: 100px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      border-top: 0;
+      border-bottom-color: rgba(255,255,255,.10);
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));
+    }
+    .shape::after{
+      content:"";
+      position:absolute;
+      inset: 10%;
+      border-radius: inherit;
+      border: 1px dashed rgba(255,255,255,.20);
+    }
+
+    .tag{
+      position:absolute;
+      top:10px; left:10px;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      backdrop-filter: blur(6px);
+    }
+    .content{
+      padding: 10px 10px 12px;
+    }
+    .name{
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 6px;
+    }
+    .meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .price{
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .smallbtn{
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(106,166,255,.45);
+      background: rgba(106,166,255,.16);
+      color: var(--text);
+      font-weight: 700;
+      cursor:pointer;
+    }
+    .smallbtn:active{transform: scale(.99)}
+
+    /* 底部栏 */
+    .bottombar{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: min(520px, 100%);
+      padding: 10px 14px calc(10px + var(--safe-bottom));
+      background: linear-gradient(to top, rgba(11,15,23,.92), rgba(11,15,23,.55));
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+      z-index: 20;
+    }
+    .bar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .summary{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .sum1{font-weight:800}
+    .sum2{font-size:12px; color:var(--muted)}
+    .cta{
+      display:flex;
+      gap:10px;
+    }
+    .btn{
+      border:none;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(106,166,255,.98), rgba(124,240,201,.90));
+      color:#06101b;
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--line);
+      color: var(--text);
+      box-shadow: none;
+    }
+    .btn:active{transform: scale(.98)}
+
+    /* 抽屉/弹窗遮罩 */
+    .backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      z-index: 30;
+    }
+    .backdrop.show{display:block}
+
+    /* 购物车抽屉 */
+    .drawer{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -100%;
+      width: min(520px, 100%);
+      max-height: 78vh;
+      background: rgba(18,26,40,.92);
+      border: 1px solid var(--line);
+      border-bottom: none;
+      border-radius: 18px 18px 0 0;
+      box-shadow: var(--shadow);
+      z-index: 40;
+      transition: bottom .25s ease;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      backdrop-filter: blur(12px);
+    }
+    .drawer.show{bottom: 0}
+    .drawerHead{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .handle{
+      width: 44px; height: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      margin: 0 auto 6px;
+    }
+    .drawerTitle{font-weight: 900}
+    .link{
+      color: var(--muted);
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .drawerBody{
+      padding: 10px 14px 14px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .empty{
+      padding: 18px 0;
+      color: var(--muted);
+      text-align:center;
+    }
+    .item{
+      display:flex;
+      gap:10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      margin-bottom: 10px;
+      align-items:center;
+    }
+    .thumb{
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .thumb .mini{
+      width: 60%;
+      height: 60%;
+      border-radius: 12px;
+      background: rgba(255,255,255,.07);
+      border: 1px dashed rgba(255,255,255,.18);
+    }
+    .itemMain{flex:1; min-width: 0}
+    .itemName{
+      font-weight:800;
+      font-size: 13px;
+      margin: 0 0 4px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .itemSub{font-size: 12px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap}
+    .qty{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .qty button{
+      width: 30px; height: 30px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+    }
+    .qty button:active{transform: scale(.98)}
+    .qty span{min-width: 18px; text-align:center; font-weight:800}
+    .del{
+      color: var(--danger);
+      font-weight: 900;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .drawerFoot{
+      padding: 12px 14px calc(12px + var(--safe-bottom));
+      border-top: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(15,22,36,.85);
+    }
+    .total{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .total .t1{font-weight: 900}
+    .total .t2{font-size: 12px; color: var(--muted)}
+    .checkout{
+      border:none;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 900;
+      cursor:pointer;
+      background: linear-gradient(135deg, rgba(106,166,255,.98), rgba(124,240,201,.90));
+      color:#06101b;
+    }
+    .checkout:active{transform: scale(.98)}
+
+    /* 商品详情弹窗 */
+    .modal{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 12vh;
+      width: min(520px, 100%);
+      padding: 0 14px;
+      z-index: 50;
+      display:none;
+    }
+    .modal.show{display:block}
+    .sheet{
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid var(--line);
+      background: rgba(18,26,40,.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .sheetMedia{
+      height: 240px;
+      background: radial-gradient(180px 160px at 25% 30%, rgba(106,166,255,.35), transparent 60%),
+                  radial-gradient(220px 180px at 75% 65%, rgba(124,240,201,.25), transparent 60%),
+                  rgba(255,255,255,.03);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    .close{
+      position:absolute;
+      top:10px; right:10px;
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.35);
+      color: var(--text);
+      cursor:pointer;
+    }
+    .close:active{transform: scale(.98)}
+    .sheetBody{padding: 12px 14px 14px}
+    .sheetTitle{margin:0; font-size:16px; font-weight: 900}
+    .sheetDesc{margin: 8px 0 10px; color: var(--muted); font-size: 13px; line-height: 1.45}
+    .sheetRow{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top: 6px}
+    .sheetPrice{font-size:18px; font-weight: 950}
+    .sheetStock{font-size:12px; color: var(--muted)}
+    .sheetBtns{display:flex; gap:10px; margin-top: 12px}
+    .sheetBtns .btn{flex:1; box-shadow:none}
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(86px + var(--safe-bottom));
+      background: rgba(0,0,0,.65);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(8px);
+      z-index: 60;
+      display:none;
+      font-size: 13px;
+    }
+    .toast.show{display:block}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="title">商品展示（占位版）</div>
+          <div class="subtitle">移动端自适配 · 支持模拟购买</div>
+        </div>
+        <div class="pill" id="openCartBtn" aria-label="打开购物车">
+          🛒 <span>购物车</span>
+          <span class="badge" id="cartCount">0</span>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="q" placeholder="搜索商品（示例：耳机 / 充电器 / 书本）" />
+        <div class="pill" id="sortBtn" title="切换排序">⇅ <span id="sortText">默认</span></div>
+      </div>
+    </header>
+
+    <nav class="chips" id="chips"></nav>
+    <main class="grid" id="grid"></main>
+  </div>
+
+  <!-- 底部栏 -->
+  <div class="bottombar">
+    <div class="bar">
+      <div class="summary">
+        <div class="sum1">合计：<span id="sumPrice">¥0.00</span></div>
+        <div class="sum2">已选 <span id="sumCount">0</span> 件 · 点击购物车管理</div>
+      </div>
+      <div class="cta">
+        <button class="btn ghost" id="mockBuyBtn">模拟结算</button>
+        <button class="btn primary" id="openCartBtn2">打开购物车</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 遮罩 -->
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- 购物车抽屉 -->
+  <section class="drawer" id="drawer" aria-label="购物车抽屉">
+    <div class="drawerHead">
+      <div style="flex:1">
+        <div class="handle"></div>
+        <div class="drawerTitle">购物车</div>
+      </div>
+      <div class="link" id="clearCart">清空</div>
+    </div>
+
+    <div class="drawerBody" id="cartList"></div>
+
+    <div class="drawerFoot">
+      <div class="total">
+        <div class="t1">合计：<span id="cartTotal">¥0.00</span></div>
+        <div class="t2">不含运费 · 模拟支付</div>
+      </div>
+      <button class="checkout" id="checkoutBtn">去结算</button>
+    </div>
+  </section>
+
+  <!-- 商品详情弹窗 -->
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <div class="sheetMedia" id="modalMedia">
+        <button class="close" id="closeModal" aria-label="关闭">✕</button>
+        <!-- 这里也是占位图形 -->
+        <div class="shape" id="modalShape"></div>
+      </div>
+      <div class="sheetBody">
+        <h3 class="sheetTitle" id="modalTitle">商品名称</h3>
+        <p class="sheetDesc" id="modalDesc">商品描述</p>
+        <div class="sheetRow">
+          <div class="sheetPrice" id="modalPrice">¥0.00</div>
+          <div class="sheetStock" id="modalStock">库存：--</div>
+        </div>
+        <div class="sheetBtns">
+          <button class="btn ghost" id="addToCartBtn">加入购物车</button>
+          <button class="btn primary" id="buyNowBtn">立即购买</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ========= 1) 占位商品数据（后期替换这里即可） =========
+    const PRODUCTS = [
+      { id:"p1", name:"占位商品 A", price: 59.9,  category:"数码",  stock: 99, shape:"square",
+        desc:"这里是占位描述：后期可替换为真实的商品卖点、参数、服务等信息。"},
+      { id:"p2", name:"占位商品 B", price: 129.0, category:"数码",  stock: 20, shape:"circle",
+        desc:"这里是占位描述：支持移动端展示，点击可查看详情并模拟购买。"},
+      { id:"p3", name:"占位商品 C", price: 39.0,  category:"图书",  stock: 50, shape:"triangle",
+        desc:"这里是占位描述：你可以把图形占位替换成 img 图片或轮播图。"},
+      { id:"p4", name:"占位商品 D", price: 199.0, category:"家居",  stock: 10, shape:"square",
+        desc:"这里是占位描述：支持加入购物车、数量调整、结算提示。"},
+      { id:"p5", name:"占位商品 E", price: 79.0,  category:"家居",  stock: 0,  shape:"circle",
+        desc:"这里是占位描述：库存为 0 时你可改为‘到货提醒’等按钮。"},
+      { id:"p6", name:"占位商品 F", price: 19.9,  category:"食品",  stock: 88, shape:"triangle",
+        desc:"这里是占位描述：可用于课程/作业演示电商页面结构。"},
+    ];
+
+    // ========= 2) 状态 =========
+    const state = {
+      category: "全部",
+      query: "",
+      sort: "default", // default | priceAsc | priceDesc
+      cart: new Map(), // id -> qty
+      activeProductId: null
+    };
+
+    // ========= 3) 工具函数 =========
+    const yuan = (n) => "¥" + (Math.round(n * 100) / 100).toFixed(2);
+    const $ = (sel) => document.querySelector(sel);
+
+    function toast(msg){
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(()=>t.classList.remove("show"), 1600);
+    }
+
+    function getProduct(id){ return PRODUCTS.find(p=>p.id===id); }
+
+    function cartCount(){
+      let c=0;
+      for (const qty of state.cart.values()) c += qty;
+      return c;
+    }
+
+    function cartTotal(){
+      let sum=0;
+      for (const [id, qty] of state.cart.entries()){
+        const p = getProduct(id);
+        if (p) sum += p.price * qty;
+      }
+      return sum;
+    }
+
+    // ========= 4) 渲染分类 =========
+    function renderChips(){
+      const cats = ["全部", ...Array.from(new Set(PRODUCTS.map(p=>p.category)))];
+      const chips = $("#chips");
+      chips.innerHTML = "";
+      cats.forEach(c=>{
+        const el = document.createElement("div");
+        el.className = "chip" + (state.category===c ? " active" : "");
+        el.textContent = c;
+        el.onclick = ()=>{ state.category=c; renderAll(); };
+        chips.appendChild(el);
+      });
+    }
+
+    // ========= 5) 渲染商品网格 =========
+    function filteredProducts(){
+      let list = PRODUCTS.slice();
+
+      // 分类
+      if (state.category !== "全部"){
+        list = list.filter(p=>p.category===state.category);
+      }
+
+      // 搜索
+      const q = state.query.trim().toLowerCase();
+      if (q){
+        list = list.filter(p=>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          (p.desc||"").toLowerCase().includes(q)
+        );
+      }
+
+      // 排序
+      if (state.sort === "priceAsc") list.sort((a,b)=>a.price-b.price);
+      if (state.sort === "priceDesc") list.sort((a,b)=>b.price-a.price);
+
+      return list;
+    }
+
+    function shapeClass(shape){
+      if (shape === "circle") return "shape circle";
+      if (shape === "triangle") return "shape triangle";
+      return "shape";
+    }
+
+    function renderGrid(){
+      const grid = $("#grid");
+      const list = filteredProducts();
+      grid.innerHTML = "";
+
+      if (!list.length){
+        const empty = document.createElement("div");
+        empty.style.gridColumn = "1 / -1";
+        empty.className = "empty";
+        empty.textContent = "没有匹配的商品（占位数据可自行替换）";
+        grid.appendChild(empty);
+        return;
+      }
+
+      list.forEach(p=>{
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = ()=> openModal(p.id);
+
+        const media = document.createElement("div");
+        media.className = "media";
+        media.innerHTML = `
+          <div class="tag">${p.category}</div>
+          <div class="${shapeClass(p.shape)}"></div>
+        `;
+
+        const content = document.createElement("div");
+        content.className = "content";
+        const stockText = p.stock > 0 ? `库存 ${p.stock}` : "暂无库存";
+        const btnText = p.stock > 0 ? "加入购物车" : "到货提醒";
+
+        content.innerHTML = `
+          <div class="name">${p.name}</div>
+          <div class="meta">
+            <span class="price">${yuan(p.price)}</span>
+            <span>${stockText}</span>
+          </div>
+          <button class="smallbtn" type="button">${btnText}</button>
+        `;
+
+        // 阻止按钮点击触发卡片点击（避免重复打开弹窗）
+        const btn = content.querySelector("button");
+        btn.onclick = (e)=>{
+          e.stopPropagation();
+          if (p.stock <= 0){
+            toast("已为你模拟‘到货提醒’（占位功能）");
+            return;
+          }
+          addToCart(p.id, 1);
+          toast("已加入购物车");
+        };
+
+        card.appendChild(media);
+        card.appendChild(content);
+        grid.appendChild(card);
+      });
+    }
+
+    // ========= 6) 购物车操作 =========
+    function addToCart(id, n){
+      const p = getProduct(id);
+      if (!p) return;
+      const cur = state.cart.get(id) || 0;
+      const next = Math.max(0, cur + n);
+      // 简单库存限制
+      const limited = Math.min(next, p.stock);
+      if (limited === 0) state.cart.delete(id);
+      else state.cart.set(id, limited);
+
+      if (next > p.stock) toast("已达到库存上限（模拟）");
+      renderCartBadgeAndSummary();
+      renderCartList();
+    }
+
+    function removeFromCart(id){
+      state.cart.delete(id);
+      renderCartBadgeAndSummary();
+      renderCartList();
+    }
+
+    function clearCart(){
+      state.cart.clear();
+      renderCartBadgeAndSummary();
+      renderCartList();
+      toast("购物车已清空");
+    }
+
+    function renderCartBadgeAndSummary(){
+      const count = cartCount();
+      $("#cartCount").textContent = count;
+      $("#sumCount").textContent = count;
+      $("#sumPrice").textContent = yuan(cartTotal());
+      $("#cartTotal").textContent = yuan(cartTotal());
+    }
+
+    function renderCartList(){
+      const box = $("#cartList");
+      if (state.cart.size === 0){
+        box.innerHTML = `<div class="empty">购物车空空如也～<br/>去挑选几个占位商品试试</div>`;
+        $("#cartTotal").textContent = yuan(0);
+        return;
+      }
+
+      box.innerHTML = "";
+      for (const [id, qty] of state.cart.entries()){
+        const p = getProduct(id);
+        if (!p) continue;
+
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `
+          <div class="thumb"><div class="mini"></div></div>
+          <div class="itemMain">
+            <div class="itemName">${p.name}</div>
+            <div class="itemSub">
+              <span>${yuan(p.price)} / 件</span>
+              <span>库存 ${p.stock}</span>
+            </div>
+          </div>
+          <div class="qty">
+            <button aria-label="减少">−</button>
+            <span>${qty}</span>
+            <button aria-label="增加">+</button>
+          </div>
+          <div class="del" title="删除">✕</div>
+        `;
+        const [minusBtn, , plusBtn] = row.querySelectorAll(".qty button, .qty span, .qty button");
+        row.querySelector(".qty button[aria-label='减少']").onclick = ()=> addToCart(id, -1);
+        row.querySelector(".qty button[aria-label='增加']").onclick = ()=> addToCart(id, +1);
+        row.querySelector(".del").onclick = ()=> { removeFromCart(id); toast("已移除"); };
+
+        box.appendChild(row);
+      }
+      $("#cartTotal").textContent = yuan(cartTotal());
+    }
+
+    // ========= 7) 抽屉/弹窗 控制 =========
+    function openDrawer(){
+      $("#backdrop").classList.add("show");
+      $("#drawer").classList.add("show");
+      renderCartList();
+    }
+    function closeDrawer(){
+      $("#drawer").classList.remove("show");
+      $("#backdrop").classList.remove("show");
+    }
+
+    function openModal(id){
+      state.activeProductId = id;
+      const p = getProduct(id);
+      if (!p) return;
+
+      $("#modalTitle").textContent = p.name;
+      $("#modalDesc").textContent = p.desc || "（暂无描述）";
+      $("#modalPrice").textContent = yuan(p.price);
+      $("#modalStock").textContent = p.stock > 0 ? `库存：${p.stock}` : "库存：0（占位）";
+
+      const shape = $("#modalShape");
+      shape.className = shapeClass(p.shape);
+
+      $("#backdrop").classList.add("show");
+      $("#modal").classList.add("show");
+    }
+    function closeModal(){
+      $("#modal").classList.remove("show");
+      // 若抽屉没打开才关闭遮罩
+      if (!$("#drawer").classList.contains("show")) {
+        $("#backdrop").classList.remove("show");
+      }
+    }
+
+    // ========= 8) 绑定事件 =========
+    function bind(){
+      $("#openCartBtn").onclick = openDrawer;
+      $("#openCartBtn2").onclick = openDrawer;
+
+      $("#backdrop").onclick = ()=>{
+        // 先关弹窗，再关抽屉（更符合手感）
+        if ($("#modal").classList.contains("show")) closeModal();
+        else if ($("#drawer").classList.contains("show")) closeDrawer();
+      };
+
+      $("#clearCart").onclick = clearCart;
+
+      $("#closeModal").onclick = closeModal;
+
+      $("#addToCartBtn").onclick = ()=>{
+        const id = state.activeProductId;
+        const p = getProduct(id);
+        if (!p) return;
+        if (p.stock <= 0){ toast("暂无库存（占位）"); return; }
+        addToCart(id, 1);
+        toast("已加入购物车");
+      };
+
+      $("#buyNowBtn").onclick = ()=>{
+        const id = state.activeProductId;
+        const p = getProduct(id);
+        if (!p) return;
+        if (p.stock <= 0){ toast("暂无库存（占位）"); return; }
+        addToCart(id, 1);
+        closeModal();
+        openDrawer();
+        toast("已为你准备结算（模拟）");
+      };
+
+      $("#checkoutBtn").onclick = ()=>{
+        if (state.cart.size === 0){ toast("购物车为空"); return; }
+        toast("模拟支付成功 ✅（可替换为真实支付流程）");
+        // 模拟支付后清空
+        state.cart.clear();
+        renderCartBadgeAndSummary();
+        renderCartList();
+        closeDrawer();
+      };
+
+      $("#mockBuyBtn").onclick = ()=>{
+        if (state.cart.size === 0){
+          toast("先加点商品再结算～");
+          return;
+        }
+        openDrawer();
+      };
+
+      $("#q").addEventListener("input", (e)=>{
+        state.query = e.target.value || "";
+        renderGrid();
+      });
+
+      $("#sortBtn").onclick = ()=>{
+        if (state.sort === "default") state.sort = "priceAsc";
+        else if (state.sort === "priceAsc") state.sort = "priceDesc";
+        else state.sort = "default";
+
+        $("#sortText").textContent =
+          state.sort === "default" ? "默认" :
+          state.sort === "priceAsc" ? "价格↑" : "价格↓";
+        renderGrid();
+      };
+
+      // ESC 关闭（桌面调试用）
+      document.addEventListener("keydown", (e)=>{
+        if (e.key === "Escape"){
+          if ($("#modal").classList.contains("show")) closeModal();
+          else if ($("#drawer").classList.contains("show")) closeDrawer();
+        }
+      });
+    }
+
+    // ========= 9) 总渲染 =========
+    function renderAll(){
+      renderChips();
+      renderGrid();
+      renderCartBadgeAndSummary();
+    }
+
+    renderAll();
+    bind();
+  </script>
+</body>
+</html>
