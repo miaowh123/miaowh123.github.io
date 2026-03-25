@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>单链表最大值结点算法练习</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #f4f7fb;
+      color: #222;
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #4f7cff, #79a8ff);
+      color: #fff;
+      border-radius: 16px;
+      padding: 16px 14px;
+      box-shadow: 0 6px 18px rgba(79, 124, 255, 0.2);
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      margin: 0 0 10px;
+      line-height: 1.4;
+    }
+
+    .header p {
+      margin: 6px 0;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #2f4f8f;
+    }
+
+    .tips {
+      background: #eef5ff;
+      border: 1px solid #d9e7ff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .code-bank,
+    .answer-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .code-block {
+      background: #f8fafc;
+      border: 2px solid #d8e2f0;
+      border-radius: 12px;
+      padding: 12px 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      font-family: Consolas, "Courier New", monospace;
+      user-select: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .code-block:active {
+      transform: scale(0.99);
+    }
+
+    .code-block.selected {
+      border-color: #4f7cff;
+      background: #eaf1ff;
+      box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.12);
+    }
+
+    .code-block.correct-piece {
+      background: #eefcf4;
+      border-color: #39b36e;
+    }
+
+    .code-block.wrong-piece {
+      background: #fff2f2;
+      border-color: #e05a5a;
+    }
+
+    .slot {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 2px dashed #b8c7da;
+      border-radius: 12px;
+      background: #fbfcfe;
+      padding: 10px;
+      min-height: 64px;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .slot.active-target {
+      background: #eef4ff;
+      border-color: #4f7cff;
+    }
+
+    .slot-num {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: #4f7cff;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .slot-content {
+      flex: 1;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    .placeholder {
+      color: #9aa9bf;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      flex: 1;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-check {
+      background: #4f7cff;
+      color: white;
+    }
+
+    .btn-reset {
+      background: #eef1f6;
+      color: #333;
+    }
+
+    .result {
+      margin-top: 12px;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+      display: none;
+    }
+
+    .result.success {
+      display: block;
+      background: #eefcf4;
+      border: 1px solid #b9e7ca;
+      color: #1e6d40;
+    }
+
+    .result.error {
+      display: block;
+      background: #fff4f4;
+      border: 1px solid #f0c7c7;
+      color: #a33a3a;
+    }
+
+    .footer {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      padding: 6px 0 12px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 360px) {
+      .header h1 {
+        font-size: 18px;
+      }
+
+      .code-block {
+        font-size: 12px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 11px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>单链表最大值结点算法练习</h1>
+      <p><strong>题目：</strong>通过一趟遍历，在单链表中确定值最大的结点。</p>
+      <p><strong>玩法：</strong>先点击上方代码块，再点击下方对应步骤进行放置。注意：有干扰项，不是所有代码都要用。</p>
+    </div>
+
+    <div class="card">
+      <h2>代码块区</h2>
+      <div class="tips">
+        小提示：先判空，再假设第一个数据结点最大，然后从后面的结点开始依次比较。<br>
+        点击代码块即可选中；再次点击已放入作答区的代码块，可将它退回代码区。
+      </div>
+      <div class="code-bank" id="codeBank"></div>
+    </div>
+
+    <div class="card">
+      <h2>作答区</h2>
+      <div class="answer-area" id="answerArea">
+        <div class="slot" data-index="0">
+          <div class="slot-num">1</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+        <div class="slot" data-index="1">
+          <div class="slot-num">2</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+        <div class="slot" data-index="2">
+          <div class="slot-num">3</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+        <div class="slot" data-index="3">
+          <div class="slot-num">4</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+        <div class="slot" data-index="4">
+          <div class="slot-num">5</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+        <div class="slot" data-index="5">
+          <div class="slot-num">6</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+        <div class="slot" data-index="6">
+          <div class="slot-num">7</div>
+          <div class="slot-content"><span class="placeholder">点击选中代码后，再点这里放入</span></div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-check" onclick="checkAnswer()">检查答案</button>
+        <button class="btn-reset" onclick="resetAll()">重置</button>
+      </div>
+
+      <div id="resultBox" class="result"></div>
+    </div>
+
+    <div class="footer">
+      说明：绿色表示当前位置正确，红色表示需要调整。<br>
+      本版本采用点选交互，更适合手机操作。
+    </div>
+  </div>
+
+  <script>
+    const correctSequence = [
+      "if(L->next == NULL) return NULL;",
+      "pmax = L->next;",
+      "p = L->next->next;",
+      "while(p != NULL){",
+      "if(p->data > pmax->data) pmax = p;",
+      "p = p->next;",
+      "return pmax->data;"
+    ];
+
+    const codePool = [
+      "if(L->next == NULL) return NULL;",
+      "pmax = L->next;",
+      "p = L->next->next;",
+      "while(p != NULL){",
+      "if(p->data > pmax->data) pmax = p;",
+      "p = p->next;",
+      "return pmax->data;",
+
+      // 干扰项
+      "if(L == NULL) return -1;",
+      "pmax = L;",
+      "p = L->next;",
+      "while(p->next != NULL){",
+      "if(p->data < pmax->data) pmax = p;",
+      "pmax = p->next;",
+      "return pmax;",
+      "p = pmax->next;",
+      "return L->data;"
+    ];
+
+    const codeBank = document.getElementById("codeBank");
+    const slots = document.querySelectorAll(".slot");
+    let selectedBlock = null;
+
+    function shuffle(arr) {
+      const newArr = [...arr];
+      for (let i = newArr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+      }
+      return newArr;
+    }
+
+    function clearSelection() {
+      document.querySelectorAll(".code-block").forEach(block => {
+        block.classList.remove("selected");
+      });
+      slots.forEach(slot => slot.classList.remove("active-target"));
+      selectedBlock = null;
+    }
+
+    function refreshSlotHighlight() {
+      slots.forEach(slot => {
+        if (selectedBlock) {
+          slot.classList.add("active-target");
+        } else {
+          slot.classList.remove("active-target");
+        }
+      });
+    }
+
+    function createCodeBlock(text, id) {
+      const div = document.createElement("div");
+      div.className = "code-block";
+      div.id = id;
+      div.dataset.code = text;
+      div.textContent = text;
+
+      div.addEventListener("click", function (e) {
+        e.stopPropagation();
+
+        // 如果代码块在作答区中，点击则退回代码区
+        const parentSlot = this.closest(".slot");
+        if (parentSlot) {
+          this.classList.remove("correct-piece", "wrong-piece", "selected");
+          codeBank.appendChild(this);
+          const slotContent = parentSlot.querySelector(".slot-content");
+          const step = Number(parentSlot.dataset.index) + 1;
+          slotContent.innerHTML = `<span class="placeholder">点击选中代码后，再点这里放入</span>`;
+          if (selectedBlock === this) selectedBlock = null;
+          refreshSlotHighlight();
+          return;
+        }
+
+        // 在代码区中：点击选中/取消选中
+        if (selectedBlock === this) {
+          this.classList.remove("selected");
+          selectedBlock = null;
+        } else {
+          document.querySelectorAll(".code-block").forEach(block => {
+            block.classList.remove("selected");
+          });
+          this.classList.add("selected");
+          selectedBlock = this;
+        }
+        refreshSlotHighlight();
+      });
+
+      return div;
+    }
+
+    function initCodeBank() {
+      codeBank.innerHTML = "";
+      const shuffled = shuffle(codePool);
+      shuffled.forEach((code, index) => {
+        const block = createCodeBlock(code, "code_" + index + "_" + Date.now());
+        codeBank.appendChild(block);
+      });
+    }
+
+    slots.forEach(slot => {
+      slot.addEventListener("click", function () {
+        if (!selectedBlock) return;
+
+        const slotContent = this.querySelector(".slot-content");
+        const existed = slotContent.querySelector(".code-block");
+
+        // 若该位置已有代码，先退回代码区
+        if (existed) {
+          existed.classList.remove("correct-piece", "wrong-piece", "selected");
+          codeBank.appendChild(existed);
+        }
+
+        selectedBlock.classList.remove("selected", "correct-piece", "wrong-piece");
+        slotContent.innerHTML = "";
+        slotContent.appendChild(selectedBlock);
+
+        selectedBlock = null;
+        refreshSlotHighlight();
+      });
+    });
+
+    function getStudentSequence() {
+      const seq = [];
+      slots.forEach(slot => {
+        const block = slot.querySelector(".code-block");
+        seq.push(block ? block.dataset.code : "");
+      });
+      return seq;
+    }
+
+    function checkAnswer() {
+      const resultBox = document.getElementById("resultBox");
+      let allFilled = true;
+      let correctCount = 0;
+
+      slots.forEach((slot, index) => {
+        const block = slot.querySelector(".code-block");
+        if (!block) {
+          allFilled = false;
+          return;
+        }
+        block.classList.remove("correct-piece", "wrong-piece");
+        if (block.dataset.code === correctSequence[index]) {
+          block.classList.add("correct-piece");
+          correctCount++;
+        } else {
+          block.classList.add("wrong-piece");
+        }
+      });
+
+      if (!allFilled) {
+        resultBox.className = "result error";
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "你还没有完成全部作答，请先把 7 个步骤补充完整。";
+        return;
+      }
+
+      if (correctCount === correctSequence.length) {
+        resultBox.className = "result success";
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "恭喜你，全部正确！你已经完成了该算法的练习。";
+      } else {
+        resultBox.className = "result error";
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `当前答对了 ${correctCount} / ${correctSequence.length} 个步骤，请根据颜色提示继续调整。`;
+      }
+    }
+
+    function resetAll() {
+      clearSelection();
+      initCodeBank();
+
+      slots.forEach(slot => {
+        const slotContent = slot.querySelector(".slot-content");
+        slotContent.innerHTML = `<span class="placeholder">点击选中代码后，再点这里放入</span>`;
+      });
+
+      const resultBox = document.getElementById("resultBox");
+      resultBox.className = "result";
+      resultBox.style.display = "none";
+      resultBox.innerHTML = "";
+    }
+
+    document.body.addEventListener("click", function(e) {
+      const isCodeBlock = e.target.closest(".code-block");
+      const isSlot = e.target.closest(".slot");
+      if (!isCodeBlock && !isSlot) {
+        clearSelection();
+      }
+    });
+
+    initCodeBank();
+  </script>
+</body>
+</html>
